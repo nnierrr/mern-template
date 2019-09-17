@@ -1,32 +1,57 @@
-import React, { Component } from 'react';
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import User from "./components/users/User";
 import Navbar from './components/layouts/Navbar';
-import Users from "./components/users/Users";
-import axios from 'axios';
+import Alert from './components/layouts/Alert';
+import About from "./pages/About"; 
+import Home from './pages/Home';
+import NotFound from "./pages/NotFound";
+
+
+import GithubState from "./context/github/githubState";
+import AlertState from "./context/alert/AlertState";
+
 import './App.css';
+const App = () => {
 
-class App extends Component {
-  state = {
-    users: [],
-    loading: false
-  }
-
-  async componentDidMount() {
-    this.setState({ loading: true });
-
-    const res = await axios.get(`https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`);
-    this.setState({ users: res.data, loading: false });
-  }
-
-  render() {
-    return (
-        <div className="App">
-          <Navbar />
-          <div className='container'>
-            <Users loading={this.state.loading} users={this.state.users} />
+  return (
+    <GithubState>
+    <AlertState>
+      <Router>
+          <div className="App">
+              <Navbar />
+              <div className="container">
+                  <Alert alert={alert} />
+                  <Switch>
+                      <Route
+                          exact
+                          path="/"
+                          component={Home}
+                      />
+                      <Route 
+                        exact 
+                        path="/about" 
+                        component={About} 
+                      />
+                      <Route
+                        component={NotFound}
+                      />
+                      <Route
+                          exact
+                          path="/user/:login"
+                          render={ props => (
+                              <User
+                                username={props.match.params.login}
+                              />  
+                          )}
+                      />
+                  </Switch>
+              </div>
           </div>
-        </div>
-    );  
-  }
+      </Router>
+    </AlertState>
+    </GithubState>
+  );  
 }
 
 
